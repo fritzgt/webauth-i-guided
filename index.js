@@ -2,6 +2,9 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 
+//1. Importing bcrypt library
+const bcrypt = require('bcryptjs');
+
 const db = require('./database/dbConfig.js');
 const Users = require('./users/users-model.js');
 
@@ -17,6 +20,15 @@ server.get('/', (req, res) => {
 
 server.post('/api/register', (req, res) => {
   let user = req.body;
+
+  //2. Creating the encrypted password
+  //By grabing it from the req.body before it goes into the server
+  const hash = bcrypt.hashSync(user.password, 14);
+  //No code below will be executed till the hash is done its rounds
+
+  //3.Now we store the has as the user password for
+  //the server to store it
+  user.password = hash;
 
   Users.add(user)
     .then(saved => {
@@ -52,5 +64,5 @@ server.get('/api/users', (req, res) => {
     .catch(err => res.send(err));
 });
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 6000;
 server.listen(port, () => console.log(`\n** Running on port ${port} **\n`));
